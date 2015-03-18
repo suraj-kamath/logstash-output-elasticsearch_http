@@ -1,9 +1,21 @@
 # encoding: utf-8
 require "logstash/outputs/elasticsearch"
+require "logstash/codecs/base"
 require "logstash/namespace"
+require "forwardable"
 
 # This plugin is deprecated in favor of using elasticsearch output and the http protocol
-class LogStash::Outputs::ElasticsearchHTTP < LogStash::Outputs::ElasticSearch
+# You need to upgrade your configuration
+#
+# .Example
+# [source,ruby]
+#   elasticsearch {
+#     protocol => 'http'
+#     host => '127.0.0.1'
+#   }
+class LogStash::Outputs::ElasticsearchHTTP < LogStash::Outputs::Base
+  extend Forwardable
+
   config_name "elasticsearch_http"
 
   # The index to write events to. This can be dynamic using the %{foo} syntax.
@@ -82,17 +94,61 @@ class LogStash::Outputs::ElasticsearchHTTP < LogStash::Outputs::ElasticSearch
   # written.
   config :replication, :validate => ['async', 'sync'], :default => 'sync'
 
+  def_delegators :@elasticsearch_output, :teardown, :register, :receive
+
   def initialize(options = {})
+    super(options)
+
     @logger = Cabin::Channel.get(LogStash)
-    @logger.warn("The elasticsearch_http output is deprecated and will be removed in a future version, migrate your config to the elasticsearch plugin with the `http` protocol")
+    warning_message = []
+
+    warning_message << "The elasticsearch_http output is replaced by the elasticsearch output and will be removed in a future version of Logstash"
 
     if options.delete("replication") == "async"
-      @logger.warn("Ignoring the async replication option, this option is not recommended and not supported by this plugin")
+      warning_message << "Ignoring the async replication option, this option is not recommended and not supported by this plugin"
     end
 
-    options["host"] = [[options['host']]]
+    # transform configuration
+    options["host"] = [options['host']]
     options["protocol"] = "http"
 
-    super(options)
+    
+    # Generate a migration configuration for the new elasticsearch output
+    # using the current settings as the base.
+    warning_message << "This is the new config you should use:"
+    warning_message << "elasticsearch {"
+
+    @config.each do |option, value|
+      if display_option?(option, value)
+        warning_message << "\t#{option} => #{format_value(value)}"
+      end
+    end
+
+    warning_message << "}\n"
+
+    @logger.warn(warning_message.join("\n"))
+    @elasticsearch_output = LogStash::Outputs::ElasticSearch.new(options)
+  end
+
+  private
+  def format_value(value)
+    if value.is_a?(LogStash::Codecs::Base)
+      return "\"#{value.class.to_s.split('::').last.downcase}\""
+    elsif value.is_a?(String)
+      return "\"#{value}\""
+    else
+      return value
+    end
+  end
+
+  def display_option?(option, value)
+    return false if option == 'password' && @config['user'].nil?
+    if !value.nil?
+      if value.is_a?(Array) 
+        return true if value.size > 0
+      elsif value.to_s.size != 0
+        return true
+      end
+    end
   end
 end

@@ -95,4 +95,4 @@ class LogStash::Outputs::ElasticsearchHTTP < LogStash::Outputs::ElasticSearch
 
     super(options)
   end
-end # class LogStash::Outputs::Example
+end

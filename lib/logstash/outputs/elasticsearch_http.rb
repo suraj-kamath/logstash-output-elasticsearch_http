@@ -5,7 +5,7 @@ require "logstash/namespace"
 require "forwardable"
 
 # This plugin is deprecated in favor of using elasticsearch output and the http protocol
-# You need to upgrade your configuration
+# Please update your current configuration!
 #
 # .Example
 # [source,ruby]
@@ -120,7 +120,7 @@ class LogStash::Outputs::ElasticsearchHTTP < LogStash::Outputs::Base
 
     @config.each do |option, value|
       if display_option?(option, value)
-        warning_message << "\t#{option} => #{format_value(value)}"
+        warning_message << "#{option} => #{format_value(value)}"
       end
     end
 

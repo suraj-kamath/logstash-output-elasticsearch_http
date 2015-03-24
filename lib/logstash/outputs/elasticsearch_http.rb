@@ -115,7 +115,7 @@ class LogStash::Outputs::ElasticsearchHTTP < LogStash::Outputs::Base
     
     # Generate a migration configuration for the new elasticsearch output
     # using the current settings as the base.
-    warning_message << "This is the new config you should use:"
+    warning_message << "The following configuration example is based on the options you specified and should work:"
     warning_message << "elasticsearch {"
 
     @config.each do |option, value|

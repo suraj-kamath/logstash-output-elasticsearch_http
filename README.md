@@ -1,3 +1,8 @@
+# Please read!
+## This plugin is being deprecated!
+This plugin exist to provide an easy upgrade path to the new [elasticsearch](http://github.com/logstash-plugins/logstash-output-elasticsearch/) output.
+This means that **new pull requests will not be accepted** here, please direct any issues to the new elasticsearch output.
+
 # Logstash Plugin
 
 This is a plugin for [Logstash](https://github.com/elasticsearch/logstash).

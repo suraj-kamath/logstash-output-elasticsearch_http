@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'logstash-output-elasticsearch_http'
-  s.version         = '0.0.1'
+  s.version         = '0.0.2'
   s.licenses = ['Apache License (2.0)']
   s.summary = "The elasticsearch_http output is deprecated in favor of the elasticsearch"
   s.description = "The elasticsearch_http output is deprecated in favor of the elasticsearch output with the protocol set to http"
